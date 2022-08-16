@@ -9,7 +9,8 @@ const sendToLocalStorage = (listStorage) => {
   localStorage.setItem('list', JSON.stringify(listStorage));
 };
 
-sendToLocalStorage(taskList);
+taskList = JSON.parse(localStorage.getItem('list')) || [];
+// sendToLocalStorage(taskList);
 
 const section = document.querySelector('section');
 section.innerHTML = `
@@ -41,7 +42,10 @@ const createList = () => {
 
   // Add event to checkboxes
   // eslint-disable-next-line no-unused-vars
-  let count = 1;
+  let count;
+  count = taskList.length > 0 ? taskList.length : 0;
+  // (condition)? (true condition): (false condition)
+
   checkboxes.addEventListener('click', () => {
     threeDots.classList.toggle('remove-icon-active');
     trashIcon.classList.toggle('icon2');
@@ -73,17 +77,10 @@ const createList = () => {
     }
     const empty = [];
     getting.forEach((item) => {
-      if (item.completed === true) {
-        return;
+      if (item.completed === false) {
+        empty.push(item);
       }
-      empty.push(item);
     });
-    // for (let i = 0; i < getting.length; i += 1) {
-    //   if (getting[i].completed === true) {
-    //     continue;
-    //   }
-    //   empty.push(getting[i]);
-    // }
     sendToLocalStorage(empty);
   });
 
@@ -138,7 +135,8 @@ const createList = () => {
 const dataEntry = document.querySelector('.dataEntry');
 dataEntry.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && dataEntry.value) {
-    const object = new Template(dataEntry.value, false, taskList.length);
+    const count = taskList.length > 0 ? taskList.length : 0;
+    const object = new Template(dataEntry.value, false, count);
     taskList.push(object);
     e.preventDefault();
     createList();
@@ -147,22 +145,18 @@ dataEntry.addEventListener('keypress', (e) => {
       listText[i].textContent = taskList[i].description;
     }
     dataEntry.value = null;
-    sendToLocalStorage();
+    sendToLocalStorage(taskList);
   }
 });
 
 // Window Load event
 window.addEventListener('load', () => {
-  const getFromLocalStorage = JSON.parse(localStorage.getItem('list'));
-  for (let i = 0; i < getFromLocalStorage.length; i += 1) {
+  for (let i = 0; i < taskList.length; i += 1) {
     createList();
     const listText = document.querySelectorAll('.listContent');
-    listText[i].textContent = getFromLocalStorage[i].description;
-    if (getFromLocalStorage[i].completed === true) {
-      getFromLocalStorage[i].completed = false;
+    listText[i].textContent = taskList[i].description;
+    if (taskList[i].completed === true) {
+      taskList[i].completed = false;
     }
-    sendToLocalStorage(getFromLocalStorage);
-
-    taskList = getFromLocalStorage;
   }
 });

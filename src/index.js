@@ -2,19 +2,14 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-unused-vars */
 import './style.css';
+import Template from './template.js';
 
-class Template {
-  constructor(description, completed, index) {
-    this.description = description;
-    this.completed = completed;
-    this.index = index;
-  }
-}
-
-let array = [];
-const sendToLocalStorage = () => {
-  localStorage.setItem('list', JSON.stringify(array));
+let taskList = [];
+const sendToLocalStorage = (listStorage) => {
+  localStorage.setItem('list', JSON.stringify(listStorage));
 };
+
+sendToLocalStorage(taskList);
 
 const section = document.querySelector('section');
 section.innerHTML = `
@@ -65,7 +60,7 @@ const createList = () => {
         getting[i].completed = false;
       }
       empty.push(getting[i]);
-      localStorage.setItem('list', JSON.stringify(empty));
+      sendToLocalStorage(empty);
     }
   });
 
@@ -77,13 +72,19 @@ const createList = () => {
       form.removeChild(variable[i]);
     }
     const empty = [];
-    for (let i = 0; i < getting.length; i += 1) {
-      if (getting[i].completed === true) {
-        continue;
+    getting.forEach((item) => {
+      if (item.completed === true) {
+        return;
       }
-      empty.push(getting[i]);
-    }
-    localStorage.setItem('list', JSON.stringify(empty));
+      empty.push(item);
+    });
+    // for (let i = 0; i < getting.length; i += 1) {
+    //   if (getting[i].completed === true) {
+    //     continue;
+    //   }
+    //   empty.push(getting[i]);
+    // }
+    sendToLocalStorage(empty);
   });
 
   // Remove from list event
@@ -100,7 +101,7 @@ const createList = () => {
       }
       empty.push(getFromLocalStorage[i]);
     }
-    localStorage.setItem('list', JSON.stringify(empty));
+    sendToLocalStorage(empty);
   });
 
   threeDots.addEventListener('click', () => {
@@ -123,7 +124,7 @@ const createList = () => {
             getting[i].description = editInput.value;
           }
           empty.push(getting[i]);
-          localStorage.setItem('list', JSON.stringify(empty));
+          sendToLocalStorage(empty);
         }
         list.replaceChild(listText, editInput);
         listText.textContent = editInput.value;
@@ -137,13 +138,13 @@ const createList = () => {
 const dataEntry = document.querySelector('.dataEntry');
 dataEntry.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && dataEntry.value) {
-    const object = new Template(dataEntry.value, false, array.length);
-    array.push(object);
+    const object = new Template(dataEntry.value, false, taskList.length);
+    taskList.push(object);
     e.preventDefault();
     createList();
     const listText = document.querySelectorAll('.listContent');
-    for (let i = 0; i < array.length; i += 1) {
-      listText[i].textContent = array[i].description;
+    for (let i = 0; i < taskList.length; i += 1) {
+      listText[i].textContent = taskList[i].description;
     }
     dataEntry.value = null;
     sendToLocalStorage();
@@ -160,8 +161,8 @@ window.addEventListener('load', () => {
     if (getFromLocalStorage[i].completed === true) {
       getFromLocalStorage[i].completed = false;
     }
-    localStorage.setItem('list', JSON.stringify(getFromLocalStorage));
+    sendToLocalStorage(getFromLocalStorage);
 
-    array = getFromLocalStorage;
+    taskList = getFromLocalStorage;
   }
 });
